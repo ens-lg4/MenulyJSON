@@ -15,10 +15,34 @@ Blockly.Blocks['start'] = {
 //        .appendField('sensor_field');
 
     this.appendValueInput('json')
-        .appendSelector(['string', 'number', 'dictionary', 'array'], '→', 'null');
+        .appendSelector(['dictionary', 'array', 'string', 'number', 'true', 'false'], '→', 'null');
 
 
     this.setDeletable(false);
+  }
+};
+
+
+Blockly.Blocks['true'] = {
+  init: function() {
+    this.setColour(20);
+    this.setOutput(true, ["element"]);
+
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_CENTRE)
+        .appendField('true');
+  }
+};
+
+
+Blockly.Blocks['false'] = {
+  init: function() {
+    this.setColour(20);
+    this.setOutput(true, ["element"]);
+
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_CENTRE)
+        .appendField('false');
   }
 };
 
@@ -74,7 +98,7 @@ Blockly.Blocks['dictionary'] = {
         appended_input.appendField(new Blockly.FieldTextbutton('–', function() { this.sourceBlock_.deleteKeyValuePairInput(appended_input); }) )
             .appendField(new Blockly.FieldTextInput('key_'+lastIndex), 'key_field_'+lastIndex)
             .appendField("⇒")
-            .appendSelector(['string', 'number', 'dictionary', 'array'], '→', 'null');
+            .appendSelector(['string', 'number', 'true', 'false', 'dictionary', 'array'], '→', 'null');
 
         this.moveInputBefore('element_'+lastIndex, 'close_bracket');
   },
@@ -126,7 +150,7 @@ Blockly.Blocks['array'] = {
 
         var appended_input = this.appendValueInput('element_'+lastIndex);
         appended_input.appendField(new Blockly.FieldTextbutton('–', function() { this.sourceBlock_.deleteArrayElementInput(appended_input); }) )
-            .appendSelector(['string', 'number', 'dictionary', 'array'], '→', 'null');
+            .appendSelector(['string', 'number', 'true', 'false', 'dictionary', 'array'], '→', 'null');
 
         this.moveInputBefore('element_'+lastIndex, 'close_bracket');
   },

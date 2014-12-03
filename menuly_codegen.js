@@ -11,6 +11,15 @@ Blockly.JSON['start'] = function(block) {
     return json;
 }
 
+Blockly.JSON['true'] = function(block) {
+    return true;
+}
+
+
+Blockly.JSON['false'] = function(block) {
+    return false;
+}
+
 
 Blockly.JSON['string'] = function(block) {
     var string_value = block.getFieldValue( 'string_value' );
