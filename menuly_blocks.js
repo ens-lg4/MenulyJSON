@@ -58,7 +58,7 @@ Blockly.Blocks['dictionary'] = {
         var lastIndex = this.length++;
 
         var appended_input = this.appendValueInput('element_'+lastIndex);
-        appended_input.appendField(new Blockly.FieldTextbutton('–', function() { this.sourceBlock_.deleteInputFromOrder(appended_input); }) )
+        appended_input.appendField(new Blockly.FieldTextbutton('–', function() { this.sourceBlock_.deleteKeyValuePairInput(appended_input); }) )
             .appendField(new Blockly.FieldTextInput('key_'+lastIndex), 'key_field_'+lastIndex)
             .appendField("⇒")
             .appendSelector(['scalar', 'dictionary', 'array'], '→', 'null');
@@ -66,7 +66,7 @@ Blockly.Blocks['dictionary'] = {
         this.moveInputBefore('element_'+lastIndex, 'close_bracket');
   },
 
-  deleteInputFromOrder: function(inputToDelete) {
+  deleteKeyValuePairInput: function(inputToDelete) {
 
         var inputNameToDelete = inputToDelete.name;
 
@@ -81,9 +81,11 @@ Blockly.Blocks['dictionary'] = {
         var lastIndex = --this.length;
 
         for(var i=inputIndexToDelete+1; i<=lastIndex; i++) { // rename all the subsequent element-inputs
-            var input  = this.getInput( 'element_'+i );
+            var input       = this.getInput( 'element_'+i );
+            input.name      = 'element_'+(i-1);
 
-            input.name = 'element_'+(i-1);
+            var key_field   = this.getField_( 'key_field_'+i );
+            key_field.name  = 'key_field_'+(i-1);
         }
   }
 };
@@ -110,13 +112,13 @@ Blockly.Blocks['array'] = {
         var lastIndex = this.length++;
 
         var appended_input = this.appendValueInput('element_'+lastIndex);
-        appended_input.appendField(new Blockly.FieldTextbutton('–', function() { this.sourceBlock_.deleteInputFromOrder(appended_input); }) )
+        appended_input.appendField(new Blockly.FieldTextbutton('–', function() { this.sourceBlock_.deleteArrayElementInput(appended_input); }) )
             .appendSelector(['scalar', 'dictionary', 'array'], '→', 'null');
 
         this.moveInputBefore('element_'+lastIndex, 'close_bracket');
   },
 
-  deleteInputFromOrder: function(inputToDelete) {
+  deleteArrayElementInput: function(inputToDelete) {
 
         var inputNameToDelete = inputToDelete.name;
 
