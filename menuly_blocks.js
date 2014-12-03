@@ -101,6 +101,8 @@ Blockly.Blocks['dictionary'] = {
             .appendSelector(['string', 'number', 'true', 'false', 'dictionary', 'array'], '→', 'null');
 
         this.moveInputBefore('element_'+lastIndex, 'close_bracket');
+
+        return appended_input;
   },
 
   deleteKeyValuePairInput: function(inputToDelete) {
@@ -153,6 +155,8 @@ Blockly.Blocks['array'] = {
             .appendSelector(['string', 'number', 'true', 'false', 'dictionary', 'array'], '→', 'null');
 
         this.moveInputBefore('element_'+lastIndex, 'close_bracket');
+
+        return appended_input;
   },
 
   deleteArrayElementInput: function(inputToDelete) {

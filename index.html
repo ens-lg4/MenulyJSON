@@ -21,6 +21,13 @@
     <!-- code generation: -->
     <script type="text/javascript" src="menuly_codegen.js"></script>
 
+    <script>
+
+        function interpretJSONarea() {
+            Blockly.JSON.toWorkspace( document.getElementById('json_area').value, Blockly.getMainWorkspace() );
+        }
+
+    </script>
     <style>
         body {
             background-color: #fff;
@@ -40,14 +47,18 @@
 
   <div style="height: 600px">
     <div id="blocklyDiv" style="float: left; width: 74%; height: 100%"></div>
-    <div style="margin-left: 74%; width: 24%; height: 100%"><textarea id=json_area style="height: 100%; width: 100%"></textarea></div>
+    <div style="margin-left: 74%; width: 24%; height: 100%">
+        <button onclick='interpretJSONarea()'>interpret JSON from the textarea below</button>
+        <textarea id=json_area style="height: 95%; width: 100%"></textarea>
+    </div>
   </div>
 
   <script>
 
     function updateJSONarea() {
-        document.getElementById('json_area').value = Blockly.JSON.workspaceToJSON(Blockly.mainWorkspace, 1); // block_id=0 means "all toplevel blocks"
+        document.getElementById('json_area').value = Blockly.JSON.fromWorkspace(Blockly.getMainWorkspace(), 1); // block_id=0 means "all toplevel blocks"
     }
+
 
 	Blockly.inject(document.getElementById('blocklyDiv'), {
         media: 'media/',    // to avoid reaching to the web for icons
@@ -58,7 +69,7 @@
 	var initial_workspace_state = '<xml xmlns="http://www.w3.org/1999/xhtml"> <block type="start" x="15" y="15"/> </xml>';
     var dom = Blockly.Xml.textToDom( initial_workspace_state );
     Blockly.mainWorkspace.clear();
-    Blockly.Xml.domToWorkspace(Blockly.mainWorkspace, dom);
+    Blockly.Xml.domToWorkspace(Blockly.getMainWorkspace(), dom);
 
     Blockly.addChangeListener(updateJSONarea);
   </script>
