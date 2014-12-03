@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>A Blockly-based visual editor for JSON structures.</title>
+
+    <script type="text/javascript" src="blockly_compressed.js"></script>
+
+    <!-- context menu in English: -->
+    <script type="text/javascript" src="msg/js/en.js"></script>
+
+    <!-- a simple yet very practical widget: -->
+    <script type="text/javascript" src="field_textbutton.js"></script>
+
+    <!-- override/extend some Blockly code (menu-based building code): -->
+    <script type="text/javascript" src="menuly_override.js"></script>
+
+    <!-- blocks to build JSON structures from: -->
+    <script type="text/javascript" src="menuly_blocks.js"></script>
+
+    <!-- code generation: -->
+    <script type="text/javascript" src="menuly_codegen.js"></script>
+
+    <style>
+        body {
+            background-color: #fff;
+            font-family: sans-serif;
+        }
+        h1 {
+            font-weight: normal;
+            font-size: 140%;
+        }
+    </style>
+</head>
+<body>
+
+<h1>An editor for <a href=http://www.json.org>JSON</a> structures made out of <a href="https://developers.google.com/blockly/">Blockly</a>-with-menus.</h1>
+
+  <br/>
+
+  <div style="height: 600px">
+    <div id="blocklyDiv" style="float: left; width: 74%; height: 100%"></div>
+    <div style="margin-left: 74%; width: 24%; height: 100%"><textarea id=json_area style="height: 100%; width: 100%"></textarea></div>
+  </div>
+
+  <script>
+
+    function updateJSONarea() {
+        document.getElementById('json_area').value = Blockly.JSON.workspaceToJSON(Blockly.mainWorkspace, 1); // block_id=0 means "all toplevel blocks"
+    }
+
+	Blockly.inject(document.getElementById('blocklyDiv'), {
+        media: 'media/',    // to avoid reaching to the web for icons
+		sound: false,
+		collapse: true, comments: true, disable: false, scrollbars: true, trashcan: true // those ones are automatically true when there are categories
+	});
+
+	var initial_workspace_state = '<xml xmlns="http://www.w3.org/1999/xhtml"> <block type="start" x="15" y="15"/> </xml>';
+    var dom = Blockly.Xml.textToDom( initial_workspace_state );
+    Blockly.mainWorkspace.clear();
+    Blockly.Xml.domToWorkspace(Blockly.mainWorkspace, dom);
+
+    Blockly.addChangeListener(updateJSONarea);
+  </script>
+
+</body>
+</html>
