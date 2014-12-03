@@ -12,10 +12,17 @@ Blockly.JSON['start'] = function(block) {
 }
 
 
-Blockly.JSON['scalar'] = function(block) {
-    var scalar_value = block.getFieldValue( 'scalar_value' );
+Blockly.JSON['string'] = function(block) {
+    var string_value = block.getFieldValue( 'string_value' );
 
-    return scalar_value ;
+    return string_value ;
+}
+
+
+Blockly.JSON['number'] = function(block) {
+    var number_value = Number(block.getFieldValue( 'number_value' ));
+
+    return number_value ;
 }
 
 
