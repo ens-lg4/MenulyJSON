@@ -24,7 +24,7 @@
     <script>
 
         function updateJSONarea() {
-            document.getElementById('json_area').value = Blockly.JSON.fromWorkspace(Blockly.getMainWorkspace(), 0); // block_id=0 means "all toplevel blocks"
+            document.getElementById('json_area').value = Blockly.JSON.fromWorkspace( Blockly.getMainWorkspace() );
         }
 
         function interpretJSONarea() {

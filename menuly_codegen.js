@@ -81,18 +81,19 @@ Blockly.JSON.generalBlockToObj = function(block) {
 }
 
 
-Blockly.JSON.fromWorkspace = function(workspace, block_id) {
+Blockly.JSON.fromWorkspace = function(workspace) {
 
     var json_text = '';
 
-    var blocks = block_id
-        ? [ workspace.getBlockById( block_id ) ]
-        : workspace.getTopBlocks(true);
+    var top_blocks = workspace.getTopBlocks(false);
+    for (var i in top_blocks) {
+        var top_block = top_blocks[i];
 
-    for (var i = 0, block; block = blocks[i]; i++) {
+        if(top_block.type == 'start') {
+            var json_structure = this.generalBlockToObj( top_block );
 
-        var obj = this.generalBlockToObj( block );
-        json_text += JSON.stringify(obj, null, 4) + '\n\n';
+            json_text += JSON.stringify(json_structure, null, 4) + '\n\n';
+        }
     }
 
     return json_text;
