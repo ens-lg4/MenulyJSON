@@ -23,6 +23,10 @@
 
     <script>
 
+        function updateJSONarea() {
+            document.getElementById('json_area').value = Blockly.JSON.fromWorkspace(Blockly.getMainWorkspace(), 0); // block_id=0 means "all toplevel blocks"
+        }
+
         function interpretJSONarea() {
             Blockly.JSON.toWorkspace( document.getElementById('json_area').value, Blockly.getMainWorkspace() );
         }
@@ -55,21 +59,13 @@
 
   <script>
 
-    function updateJSONarea() {
-        document.getElementById('json_area').value = Blockly.JSON.fromWorkspace(Blockly.getMainWorkspace(), 1); // block_id=0 means "all toplevel blocks"
-    }
-
-
 	Blockly.inject(document.getElementById('blocklyDiv'), {
         media: 'media/',    // to avoid reaching to the web for icons
 		sound: false,
 		collapse: true, comments: true, disable: false, scrollbars: true, trashcan: true // those ones are automatically true when there are categories
 	});
 
-	var initial_workspace_state = '<xml xmlns="http://www.w3.org/1999/xhtml"> <block type="start" x="15" y="15"/> </xml>';
-    var dom = Blockly.Xml.textToDom( initial_workspace_state );
-    Blockly.mainWorkspace.clear();
-    Blockly.Xml.domToWorkspace(Blockly.getMainWorkspace(), dom);
+    Blockly.JSON.toWorkspace( 'null', Blockly.getMainWorkspace() ); // dogfooding: load the initial state using our own JSON converter
 
     Blockly.addChangeListener(updateJSONarea);
   </script>
