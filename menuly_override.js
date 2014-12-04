@@ -57,6 +57,7 @@ Blockly.Input.prototype.appendSelector = function(allowedBlocks, presenceLabel, 
 
     var presenceLabel   = presenceLabel || this.name;
     var absenceLabel    = absenceLabel  || 'no '+this.name;
+    var ddl_name        = 'ddl_'+this.name;
 
     var dd_list = [
         [ absenceLabel, ':REMOVE', absenceLabel]
@@ -77,7 +78,7 @@ Blockly.Input.prototype.appendSelector = function(allowedBlocks, presenceLabel, 
 
                     this.sourceBlock_.toggleTargetBlock(this_input, targetType);
                 }
-        ));
+        ), ddl_name);
 
     return this;
 };
@@ -96,6 +97,56 @@ Blockly.Block.prototype.toggleTargetBlock = function(input, targetType) {     //
         var parentConnection = input ? this.getInput(input.name).connection : this.nextConnection;     // named input or next
         var childConnection = targetBlock.outputConnection || targetBlock.previousConnection;          // vertical or horizontal
         parentConnection.connect(childConnection);
+    }
+};
+
+
+// A very useful mapping from connection back to input
+Blockly.Connection.prototype.getInput = function() {
+    var inputList = this.sourceBlock_.inputList;
+
+    for (var i in inputList) {
+        var connection = inputList[i].connection;
+        if(connection == this) {
+            return inputList[i];
+        }
+    }
+}
+
+
+// Update the DDL on connect()
+var original_connect = Blockly.Connection.prototype.connect;
+
+Blockly.Connection.prototype.connect = function(otherConnection) {
+
+    original_connect.call(this, otherConnection);
+
+    var parentConnection = this.isSuperior() ? this : otherConnection;  // since connect() is symmetrical we never know which way it is called
+    var childBlock       = this.isSuperior() ? otherConnection.sourceBlock_ : this.sourceBlock_;
+
+    var input       = parentConnection.getInput();
+    var ddl_name    = 'ddl_'+input.name;
+    var ddl_field   = parentConnection.sourceBlock_.getField_(ddl_name);
+    if(ddl_field) {
+        ddl_field.setValue(childBlock.type);
+    }
+}
+
+
+// Update the DDL on disconnect()
+var original_disconnect = Blockly.Connection.prototype.disconnect;
+
+Blockly.Connection.prototype.disconnect = function() {
+
+    var parentConnection = this.isSuperior() ? this : this.targetConnection;  // since disconnect() is symmetrical we never know which way it is called
+
+    original_disconnect.call(this);
+
+    var input       = parentConnection.getInput();
+    var ddl_name    = 'ddl_'+input.name;
+    var ddl_field   = parentConnection.sourceBlock_.getField_(ddl_name);
+    if(ddl_field) {
+        ddl_field.setValue(':REMOVE');
     }
 };
 
