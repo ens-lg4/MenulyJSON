@@ -6,7 +6,6 @@ var original_onMouseUp_ = Blockly.Block.prototype.onMouseUp_;
 
 Blockly.Block.prototype.onMouseUp_ = function(e) {
     original_onMouseUp_.call(this, e);
-
     
         // Check if this block is part of a task:
     if (Blockly.selected) {
@@ -76,7 +75,7 @@ Blockly.Input.prototype.appendSelector = function(allowedBlocks, presenceLabel, 
         .setAlign( this.type == Blockly.INPUT_VALUE ? Blockly.ALIGN_RIGHT : Blockly.ALIGN_LEFT)
         .appendField(new Blockly.FieldDropdown( dd_list, function(targetType) {
 
-                    this.sourceBlock_.toggleTargetBlock(this_input, targetType);
+                    return this.sourceBlock_.toggleTargetBlock(this_input, targetType);
                 }
         ), ddl_name);
 
@@ -87,16 +86,22 @@ Blockly.Input.prototype.appendSelector = function(allowedBlocks, presenceLabel, 
 Blockly.Block.prototype.toggleTargetBlock = function(input, targetType) {     // universal version: can create any type of targetBlocks
 
     var targetBlock = input ? this.getInputTargetBlock(input.name) : this.getNextBlock();              // named input or next
-    if(targetType==':REMOVE' && targetBlock) {
-        targetBlock.dispose(true, true);    // or targetBlock.unplug(...)
-    } else if(targetType!=':REMOVE' && !targetBlock) {
-        targetBlock = Blockly.Block.obtain(Blockly.getMainWorkspace(), targetType);
-        targetBlock.initSvg();
-        targetBlock.render();
+    if( targetType==':REMOVE' ) {
+        if(targetBlock) {
+            targetBlock.dispose(true, true);    // or targetBlock.unplug(...)
+        }
+    } else {
+        if(targetBlock) {   // Don't remove it, but return the "override" value to make sure the DDL is up to date:
+            return targetBlock.type;
+        } else {            // add a new kind of block:
+            targetBlock = Blockly.Block.obtain(Blockly.getMainWorkspace(), targetType);
+            targetBlock.initSvg();
+            targetBlock.render();
 
-        var parentConnection = input ? this.getInput(input.name).connection : this.nextConnection;     // named input or next
-        var childConnection = targetBlock.outputConnection || targetBlock.previousConnection;          // vertical or horizontal
-        parentConnection.connect(childConnection);
+            var parentConnection = input ? this.getInput(input.name).connection : this.nextConnection;     // named input or next
+            var childConnection = targetBlock.outputConnection || targetBlock.previousConnection;          // vertical or horizontal
+            parentConnection.connect(childConnection);
+        }
     }
 };
 
