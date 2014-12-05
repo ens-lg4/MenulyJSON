@@ -4,6 +4,42 @@
 Blockly.JSON = new Blockly.Generator('JSON');
 
 
+Blockly.JSON.fromWorkspace = function(workspace) {
+
+    var json_text = '';
+
+    var top_blocks = workspace.getTopBlocks(false);
+    for(var i in top_blocks) {
+        var top_block = top_blocks[i];
+
+        if(top_block.type == 'start') {
+            var json_structure = this.generalBlockToObj( top_block );
+
+            json_text += JSON.stringify(json_structure, null, 4) + '\n\n';
+        }
+    }
+
+    return json_text;
+};
+
+
+Blockly.JSON.generalBlockToObj = function(block) {
+
+    if(block) {
+
+            // dispatcher:
+        var func = this[block.type];
+        if(func) {
+            return func.call(this, block);
+        } else {
+            console.log("Don't know how to generate JSON code for a '"+block.type+"'");
+        }
+    } else {
+        return null;
+    }
+};
+
+
 Blockly.JSON['start'] = function(block) {
 
     var json    = this.generalBlockToObj( block.getInputTargetBlock( 'json' ) );
@@ -61,104 +97,5 @@ Blockly.JSON['array'] = function(block) {
     }
 
     return array;
-};
-
-
-Blockly.JSON.generalBlockToObj = function(block) {
-
-    if(block) {
-
-            // dispatcher:
-        var func = this[block.type];
-        if(func) {
-            return func.call(this, block);
-        } else {
-            console.log("Don't know how to generate JSON code for a '"+block.type+"'");
-        }
-    } else {
-        return null;
-    }
-};
-
-
-Blockly.JSON.fromWorkspace = function(workspace) {
-
-    var json_text = '';
-
-    var top_blocks = workspace.getTopBlocks(false);
-    for(var i in top_blocks) {
-        var top_block = top_blocks[i];
-
-        if(top_block.type == 'start') {
-            var json_structure = this.generalBlockToObj( top_block );
-
-            json_text += JSON.stringify(json_structure, null, 4) + '\n\n';
-        }
-    }
-
-    return json_text;
-};
-
-
-Blockly.JSON.toWorkspace = function(json_text, workspace) {
-
-    var json_structure  = JSON.parse(json_text);
-
-    workspace.clear();
-
-    var startBlock = Blockly.Block.obtain(workspace, 'start');
-    startBlock.initSvg();
-    startBlock.render();
-    Blockly.JSON.buildAndConnect(json_structure, startBlock.getInput('json').connection);
-};
-
-
-Blockly.JSON.buildAndConnect = function(json_structure, parentConnection) {
-    if(json_structure === null) {
-        return;
-    } else {
-        var type  = typeof(json_structure);
-        if(type == 'boolean') {
-            type = String(Boolean(json_structure));
-        } else if(type == 'object') {
-            type = (json_structure instanceof Array) ? 'array' : 'dictionary';
-        }
-
-        var targetBlock = Blockly.Block.obtain(parentConnection.sourceBlock_.workspace, type);
-        targetBlock.initSvg();
-        targetBlock.render();
-
-        var childConnection = targetBlock.outputConnection;
-        parentConnection.connect(childConnection);
-
-        switch(type) {
-            case 'string':
-                targetBlock.setFieldValue( String(json_structure), 'string_value' );
-                break;
-            case 'number':
-                targetBlock.setFieldValue( String(json_structure), 'number_value' );
-                break;
-            case 'dictionary':
-                var i=0;
-                for(var key in json_structure) {
-                    targetBlock.appendKeyValuePairInput();
-                    targetBlock.setFieldValue( key, 'key_field_'+i );
-
-                    var elementConnection = targetBlock.getInput('element_'+i).connection;
-                    Blockly.JSON.buildAndConnect(json_structure[key], elementConnection);
-
-                    i++;
-                }
-                break;
-            case 'array':
-                for(var i in json_structure) {
-                    targetBlock.appendArrayElementInput();
-
-                    var elementConnection = targetBlock.getInput('element_'+i).connection;
-                    Blockly.JSON.buildAndConnect(json_structure[i], elementConnection);
-                }
-                break;
-        }
-    }
 };
 
