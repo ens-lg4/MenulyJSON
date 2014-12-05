@@ -111,6 +111,19 @@ Blockly.Connection.prototype.getInput = function() {
             return inputList[i];
         }
     }
+};
+
+
+// If there is a ddl linked with the input, update its label to the type of the block plugged in:
+Blockly.Input.prototype.updateLinkedDDL = function() {
+
+    var ddl_name    = 'ddl_'+this.name;
+    var ddl_field   = this.sourceBlock_.getField_(ddl_name);
+    if(ddl_field) {
+        var targetBlock = this.connection.targetBlock();
+        var type = targetBlock ? targetBlock.type : ':REMOVE';
+        ddl_field.setValue(type);
+    }
 }
 
 
@@ -122,15 +135,9 @@ Blockly.Connection.prototype.connect = function(otherConnection) {
     original_connect.call(this, otherConnection);
 
     var parentConnection = this.isSuperior() ? this : otherConnection;  // since connect() is symmetrical we never know which way it is called
-    var childBlock       = this.isSuperior() ? otherConnection.sourceBlock_ : this.sourceBlock_;
 
-    var input       = parentConnection.getInput();
-    var ddl_name    = 'ddl_'+input.name;
-    var ddl_field   = parentConnection.sourceBlock_.getField_(ddl_name);
-    if(ddl_field) {
-        ddl_field.setValue(childBlock.type);
-    }
-}
+    parentConnection.getInput().updateLinkedDDL();
+};
 
 
 // Update the DDL on disconnect()
@@ -142,11 +149,6 @@ Blockly.Connection.prototype.disconnect = function() {
 
     original_disconnect.call(this);
 
-    var input       = parentConnection.getInput();
-    var ddl_name    = 'ddl_'+input.name;
-    var ddl_field   = parentConnection.sourceBlock_.getField_(ddl_name);
-    if(ddl_field) {
-        ddl_field.setValue(':REMOVE');
-    }
+    parentConnection.getInput().updateLinkedDDL();
 };
 
