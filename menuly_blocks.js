@@ -8,12 +8,6 @@ Blockly.Blocks['start'] = {
         .setAlign(Blockly.ALIGN_CENTRE)
         .appendField("JSON structure");
 
-//  TODO: we need a way to sense the docking of a value block
-//        in order to update the label on the dropdown menu
-//
-//    this.appendValueInput('sensor')
-//        .appendField('sensor_field');
-
     this.appendValueInput('json')
         .appendSelector(['dictionary', 'array', 'string', 'number', 'true', 'false'], '→', 'null');
 
