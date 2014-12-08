@@ -1,47 +1,11 @@
 'use strict';
 
 
-    // slightly improved (by proper extension) OpenRoberta code for disabling blocks lying around the workspace unconnected to our main start block:
-var original_onMouseUp_ = Blockly.Block.prototype.onMouseUp_;
-
-Blockly.Block.prototype.onMouseUp_ = function(e) {
-    original_onMouseUp_.call(this, e);
-    
-        // Check if this block is part of a task:
-    if (Blockly.selected) {
-        var topBlocks = Blockly.getMainWorkspace().getTopBlocks(true);
-        var rootBlock = Blockly.selected.getRootBlock();
-        var found = false;
-        for (var i = 0; !found && i < topBlocks.length; i++) {
-            var block = topBlocks[i];
-            var disabled = true;
-            while (block) {
-                if (block == rootBlock) {
-                    if (block.type == 'start') {
-                        disabled = false;
-                    }
-                    found = true;
-                }
-                if (found) {
-                    var descendants = rootBlock.getDescendants();
-                    for (var j = 0; j < descendants.length; j++) {
-                        descendants[j].setDisabled(disabled);
-                    }
-                }
-                block = block.getNextBlock();
-            }
-            if (found)
-                break;
-        }
-    }
-};
-
-
 Blockly.FieldDropdown.prototype.setValue = function(newValue) {      // Allow the label on the closed menu to differ from values of the open menu
   this.value_ = newValue;
   // Look up and display the human-readable text.
   var options = this.getOptions_();
-  for (var x = 0; x < options.length; x++) {
+  for(var x = 0; x < options.length; x++) {
     // Options are tuples of human-readable text and language-neutral values.
     if (options[x][1] == newValue) {
       var shortValue = options[x][2] || options[x][0];
@@ -64,7 +28,7 @@ Blockly.Input.prototype.appendSelector = function(allowedBlocks, presenceLabel, 
     if(allowedBlocks.length == 1) {
         dd_list.push( [presenceLabel+': ', allowedBlocks[0], presenceLabel ] );
     } else {
-        for (var i = 0; i < allowedBlocks.length; i++) {
+        for(var i = 0; i < allowedBlocks.length; i++) {
             dd_list.push( [allowedBlocks[i], allowedBlocks[i], presenceLabel ] );
         }
     }
@@ -110,7 +74,7 @@ Blockly.Block.prototype.toggleTargetBlock = function(input, targetType) {     //
 Blockly.Connection.prototype.getInput = function() {
     var inputList = this.sourceBlock_.inputList;
 
-    for (var i in inputList) {
+    for(var i in inputList) {
         var connection = inputList[i].connection;
         if(connection == this) {
             return inputList[i];
@@ -141,6 +105,15 @@ Blockly.Connection.prototype.connect = function(otherConnection) {
 
     var parentConnection = this.isSuperior() ? this : otherConnection;  // since connect() is symmetrical we never know which way it is called
 
+        // connecting a cluster of blocks to 'start' (even indirectly) enables this cluster:
+    if(parentConnection.sourceBlock_.getRootBlock().type == 'start') {
+        var childConnection  = parentConnection.targetConnection;
+        var descendants     = childConnection.sourceBlock_.getDescendants();
+        for(var i in descendants) {
+            descendants[i].setDisabled(false);
+        }
+    }
+
     parentConnection.getInput().updateLinkedDDL();
 };
 
@@ -151,8 +124,17 @@ var original_disconnect = Blockly.Connection.prototype.disconnect;
 Blockly.Connection.prototype.disconnect = function() {
 
     var parentConnection = this.isSuperior() ? this : this.targetConnection;  // since disconnect() is symmetrical we never know which way it is called
+    var childConnection  = parentConnection.targetConnection;   // have to obtain it before the actual disconnect
 
     original_disconnect.call(this);
+
+        // disconnecting a cluster of blocks from under 'start' disables this cluster:
+    if(parentConnection.sourceBlock_.getRootBlock().type == 'start') {
+        var descendants     = childConnection.sourceBlock_.getDescendants();
+        for(var i in descendants) {
+            descendants[i].setDisabled(true);
+        }
+    }
 
     parentConnection.getInput().updateLinkedDDL();
 };
