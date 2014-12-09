@@ -1,6 +1,27 @@
 'use strict';
 
 
+    // Disable blocks lying around the workspace unconnected to our main start block.
+    // (original idea stolen from OpenRoberta and optimized)
+
+var original_onMouseUp_ = Blockly.Block.prototype.onMouseUp_;
+
+Blockly.Block.prototype.onMouseUp_ = function(e) {
+    original_onMouseUp_.call(this, e);
+
+    if (Blockly.selected) {
+        var rootBlock = Blockly.selected.getRootBlock();
+
+        var isDisabled = (rootBlock.type != 'start');
+
+        var descendants = Blockly.selected.getDescendants();
+        for(var i in descendants) {
+            descendants[i].setDisabled(isDisabled);
+        }
+    }
+};
+
+
 Blockly.FieldDropdown.prototype.setValue = function(newValue) {      // Allow the label on the closed menu to differ from values of the open menu
   this.value_ = newValue;
   // Look up and display the human-readable text.
@@ -70,7 +91,7 @@ Blockly.Block.prototype.toggleTargetBlock = function(input, targetType) {     //
 };
 
 
-// A very useful mapping from connection back to input
+    // A very useful mapping from connection back to input
 Blockly.Connection.prototype.getInput = function() {
     var inputList = this.sourceBlock_.inputList;
 
@@ -83,7 +104,7 @@ Blockly.Connection.prototype.getInput = function() {
 };
 
 
-// If there is a ddl linked with the input, update its label to the type of the block plugged in:
+    // If there is a ddl linked with the input, update its label to the type of the block plugged in:
 Blockly.Input.prototype.updateLinkedDDL = function() {
 
     var ddl_name    = 'ddl_'+this.name;
@@ -96,7 +117,7 @@ Blockly.Input.prototype.updateLinkedDDL = function() {
 }
 
 
-// Update the DDL on connect()
+    // Update the DDL on connect() :
 var original_connect = Blockly.Connection.prototype.connect;
 
 Blockly.Connection.prototype.connect = function(otherConnection) {
@@ -105,36 +126,18 @@ Blockly.Connection.prototype.connect = function(otherConnection) {
 
     var parentConnection = this.isSuperior() ? this : otherConnection;  // since connect() is symmetrical we never know which way it is called
 
-        // connecting a cluster of blocks to 'start' (even indirectly) enables this cluster:
-    if(parentConnection.sourceBlock_.getRootBlock().type == 'start') {
-        var childConnection  = parentConnection.targetConnection;
-        var descendants     = childConnection.sourceBlock_.getDescendants();
-        for(var i in descendants) {
-            descendants[i].setDisabled(false);
-        }
-    }
-
     parentConnection.getInput().updateLinkedDDL();
 };
 
 
-// Update the DDL on disconnect()
+    // Update the DDL on disconnect() :
 var original_disconnect = Blockly.Connection.prototype.disconnect;
 
 Blockly.Connection.prototype.disconnect = function() {
 
     var parentConnection = this.isSuperior() ? this : this.targetConnection;  // since disconnect() is symmetrical we never know which way it is called
-    var childConnection  = parentConnection.targetConnection;   // have to obtain it before the actual disconnect
 
     original_disconnect.call(this);
-
-        // disconnecting a cluster of blocks from under 'start' disables this cluster:
-    if(parentConnection.sourceBlock_.getRootBlock().type == 'start') {
-        var descendants     = childConnection.sourceBlock_.getDescendants();
-        for(var i in descendants) {
-            descendants[i].setDisabled(true);
-        }
-    }
 
     parentConnection.getInput().updateLinkedDDL();
 };

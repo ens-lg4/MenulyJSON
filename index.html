@@ -5,6 +5,7 @@
     <title>A Blockly-based visual editor for JSON structures.</title>
 
     <script type="text/javascript" src="blockly_compressed.js"></script>
+    <script type="text/javascript" src="workspace.js"></script>
 
     <!-- context menu in English: -->
     <script type="text/javascript" src="msg/js/en.js"></script>
@@ -54,6 +55,16 @@
 
   <div style="height: 600px">
     <div id="blocklyDiv" style="float: left; width: 74%; height: 100%"></div>
+
+    <xml id="toolbox" style="display: none">
+        <block type="dictionary"></block>
+        <block type="array"></block>
+        <block type="number"></block>
+        <block type="string"></block>
+        <block type="true"></block>
+        <block type="false"></block>
+    </xml>
+
     <div style="margin-left: 74%; width: 24%; height: 100%">
         <button onclick='interpretJSONarea()'>interpret JSON from the textarea below</button>
         <textarea id=json_area style="height: 95%; width: 100%"></textarea>
@@ -63,6 +74,7 @@
   <script>
 
 	Blockly.inject(document.getElementById('blocklyDiv'), {
+        toolbox: document.getElementById('toolbox'),
         media: 'media/',    // to avoid reaching to the web for icons
 		sound: false,
 		collapse: true, comments: true, disable: false, scrollbars: true, trashcan: true // those ones are automatically true when there are categories
