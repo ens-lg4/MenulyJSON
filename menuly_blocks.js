@@ -1,6 +1,10 @@
 'use strict';
 
 
+Blockly.selectionArrow  = function() { return Blockly.RTL ? "←" : "→"; };
+Blockly.keyValueArrow   = function() { return Blockly.RTL ? "⇐" : "⇒"; };
+
+
 Blockly.Blocks['start'] = {
   init: function() {
     this.setColour(250);
@@ -9,8 +13,7 @@ Blockly.Blocks['start'] = {
         .appendField("JSON structure");
 
     this.appendValueInput('json')
-        .appendSelector(['dictionary', 'array', 'string', 'number', 'true', 'false'], '→', 'null');
-
+        .appendSelector(['dictionary', 'array', 'string', 'number', 'true', 'false'], Blockly.selectionArrow(), 'null');
 
     this.setDeletable(false);
   }
@@ -91,8 +94,8 @@ Blockly.Blocks['dictionary'] = {
         var appended_input = this.appendValueInput('element_'+lastIndex);
         appended_input.appendField(new Blockly.FieldTextbutton('–', function() { this.sourceBlock_.deleteKeyValuePairInput(appended_input); }) )
             .appendField(new Blockly.FieldTextInput('key_'+lastIndex), 'key_field_'+lastIndex)
-            .appendField("⇒")
-            .appendSelector(['string', 'number', 'true', 'false', 'dictionary', 'array'], '→', 'null');
+            .appendField( Blockly.keyValueArrow() )
+            .appendSelector(['string', 'number', 'true', 'false', 'dictionary', 'array'], Blockly.selectionArrow(), 'null');
 
         this.moveInputBefore('element_'+lastIndex, 'close_bracket');
 
@@ -146,7 +149,7 @@ Blockly.Blocks['array'] = {
 
         var appended_input = this.appendValueInput('element_'+lastIndex);
         appended_input.appendField(new Blockly.FieldTextbutton('–', function() { this.sourceBlock_.deleteArrayElementInput(appended_input); }) )
-            .appendSelector(['string', 'number', 'true', 'false', 'dictionary', 'array'], '→', 'null');
+            .appendSelector(['string', 'number', 'true', 'false', 'dictionary', 'array'], Blockly.selectionArrow(), 'null');
 
         this.moveInputBefore('element_'+lastIndex, 'close_bracket');
 
